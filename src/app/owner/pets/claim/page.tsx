@@ -7,6 +7,7 @@ import { Search, Upload, X, ArrowLeft, PawPrint, Hospital, Stethoscope, Clipboar
 import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
+import { compressImage } from '@/lib/compressImage'
 import LoadingScreen from '@/components/LoadingScreen'
 
 const EMOJI: Record<string, string> = { สุนัข: '🐕', แมว: '🐈', กระต่าย: '🐇', นก: '🐦', ปลา: '🐟', อื่นๆ: '🐾' }
@@ -82,11 +83,12 @@ export default function ClaimPetPage() {
 
     let proof_url = null
     if (proofFile) {
-      const ext = proofFile.file.name.split('.').pop()
+      const file = await compressImage(proofFile.file, { maxWidthPx: 1600, qualityJpeg: 0.8, maxSizeKB: 500 })
+      const ext = file.name.split('.').pop()
       const path = `${user.id}/${Date.now()}.${ext}`
       const { data: up, error: upErr } = await supabase.storage
         .from('ownership-proofs')
-        .upload(path, proofFile.file)
+        .upload(path, file)
       if (!upErr && up) {
         proof_url = supabase.storage.from('ownership-proofs').getPublicUrl(up.path).data.publicUrl
       }

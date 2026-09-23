@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { MessageSquarePlus, X, Send, Image as ImageIcon, Loader2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+import { compressImage } from '@/lib/compressImage'
 import ClinicEditRequestForm from '@/components/ClinicEditRequestForm'
 
 interface ChangelogItem { id: string; summary: string; resolved_at: string }
@@ -60,9 +61,10 @@ export default function FeedbackButton() {
 
     let image_url: string | null = null
     if (imageFile) {
-      const ext = imageFile.name.split('.').pop()
+      const file = await compressImage(imageFile, { maxWidthPx: 1600, qualityJpeg: 0.8, maxSizeKB: 500 })
+      const ext = file.name.split('.').pop()
       const path = `feedback/${user.id}-${Date.now()}.${ext}`
-      const { data, error } = await supabase.storage.from('feedback-images').upload(path, imageFile)
+      const { data, error } = await supabase.storage.from('feedback-images').upload(path, file)
       if (error) { toast.error('อัพโหลดรูปไม่สำเร็จ: ' + error.message); setSending(false); return }
       image_url = supabase.storage.from('feedback-images').getPublicUrl(data.path).data.publicUrl
     }

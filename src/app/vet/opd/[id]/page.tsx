@@ -9,6 +9,7 @@ import Image from 'next/image'
 import LoadingScreen from '@/components/LoadingScreen'
 import SearchableSelect, { SelectOption } from '@/components/SearchableSelect'
 import toast from 'react-hot-toast'
+import { compressImage } from '@/lib/compressImage'
 import { openConversation } from '@/lib/chat'
 
 const EMOJI: Record<string, string> = { สุนัข: '🐕', แมว: '🐈', กระต่าย: '🐇', นก: '🐦', ปลา: '🐟', อื่นๆ: '🐾' }
@@ -229,7 +230,9 @@ export default function OPDDetailPage() {
     setEditingOPD(true)
   }
 
-  const uploadOPDPhoto = async (file: File) => {
+  const uploadOPDPhoto = async (original: File) => {
+    // phone photos are 2–5 MB; 1600px @ ≤500 KB still prints sharp on A4
+    const file = await compressImage(original, { maxWidthPx: 1600, qualityJpeg: 0.8, maxSizeKB: 500 })
     const ext = file.name.split('.').pop()
     const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
     const { data, error } = await supabase.storage.from('opd-photos').upload(path, file)

@@ -7,6 +7,7 @@ import { ArrowLeft, Search, Plus, X, Upload, Hospital, ClipboardList } from 'luc
 import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
+import { compressImage } from '@/lib/compressImage'
 import LoadingScreen from '@/components/LoadingScreen'
 import SearchableSelect, { SelectOption } from '@/components/SearchableSelect'
 
@@ -161,7 +162,9 @@ export default function NewOPDPage() {
     e.target.value = ''
   }
 
-  const uploadPhoto = async (file: File) => {
+  const uploadPhoto = async (original: File) => {
+    // phone photos are 2–5 MB; 1600px @ ≤500 KB still prints sharp on A4
+    const file = await compressImage(original, { maxWidthPx: 1600, qualityJpeg: 0.8, maxSizeKB: 500 })
     const ext = file.name.split('.').pop()
     const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
     const { data, error } = await supabase.storage.from('opd-photos').upload(path, file)
