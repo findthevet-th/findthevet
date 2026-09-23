@@ -770,9 +770,12 @@ function OPDPrintView({ record, vetTitle }: { record: OPDRecord; vetTitle: strin
         <div style={{ flex: '0 0 40%', display: 'flex', gap: '5mm', paddingTop: '5mm', minHeight: 0 }}>
           {photos.map((p, i) => (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url!} alt={p.caption || ''}
-                style={{ width: '100%', flex: 1, objectFit: 'cover', borderRadius: 6, border: '1px solid #ccc', minHeight: 0 }} />
+              {/* contain (not cover) so the whole photo prints — cover cropped heads/tails of portrait shots */}
+              <div style={{ flex: 1, position: 'relative', minHeight: 0, background: '#f5f5f5', borderRadius: 6, border: '1px solid #ccc', overflow: 'hidden' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url!} alt={p.caption || ''}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+              </div>
               {p.caption && <div style={{ fontSize: 9.5, color: '#555', textAlign: 'center', marginTop: 2 }}>{p.caption}</div>}
             </div>
           ))}
