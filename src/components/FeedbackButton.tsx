@@ -38,10 +38,7 @@ export default function FeedbackButton() {
   useEffect(() => {
     if (!open) return
     supabase
-      .from('public_changelog')
-      .select('*')
-      .order('resolved_at', { ascending: false })
-      .limit(50)
+      .rpc('get_public_changelog')
       .then(({ data }) => setChangelog((data as ChangelogItem[]) || []))
   }, [open])
 
