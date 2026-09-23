@@ -25,4 +25,4 @@ revoke all on function public.get_public_changelog() from public;
 grant execute on function public.get_public_changelog() to anon, authenticated;
 
 -- STEP 2 — run after the new code is live on Vercel
--- drop view if exists public.public_changelog;
+drop view if exists public.public_changelog;  -- applied 2026-09-23
